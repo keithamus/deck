@@ -1,0 +1,21 @@
+{
+  "name": "deck-shift",
+  "version": "0.1.2",
+  "description": "A slide deck custom element: HTML sections, steps, View Transitions and speaker notes.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "slides",
+    "presentation",
+    "view-transitions"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "exports": "./deck-shift.min.js",
+  "files": [
+    "deck-shift.min.js"
+  ],
+  "scripts": {
+    "build": "node esbuild.js"
+  }
+}

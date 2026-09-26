@@ -1,0 +1,25 @@
+{
+  "name": "deck-check",
+  "version": "0.1.2",
+  "description": "Lints every slide and step of a <deck-shift> deck in Chrome, and draws a contact sheet.",
+  "keywords": [
+    "slides",
+    "presentation",
+    "lint",
+    "puppeteer"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "bin": {
+    "deck-check": "./deck-check.js"
+  },
+  "files": [
+    "deck-check.js"
+  ],
+  "scripts": {
+    "build": "echo ''"
+  },
+  "dependencies": {
+    "puppeteer": "^25.12.0"
+  }
+}

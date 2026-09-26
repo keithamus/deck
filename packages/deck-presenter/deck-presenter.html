@@ -1,0 +1,53 @@
+<header part="header">
+  <span part="timer" title="click to reset">00:00</span
+  ><span part="position"></span>
+  <button part="button prev-button" aria-label="Back">&lsaquo; Back</button
+  ><button part="button next-button" aria-label="Next">Next &rsaquo;</button>
+  <span part="clock"></span>
+</header>
+<main part="main">
+  <section>
+    <div part="frame current-slide">
+      <iframe tabindex="-1"></iframe>
+    </div>
+  </section>
+  <aside part="sidebar">
+    <div>
+      <label part="label">Next</label>
+      <div class="frame next" part="frame next-slide">
+        <iframe tabindex="-1"></iframe>
+        <div class="end" part="end">End of deck</div>
+      </div>
+    </div>
+    <div part="notes"></div>
+  </aside>
+</main>
+<dialog closedby="any" part="help" aria-label="Keyboard shortcuts">
+  <h1>Presenter view</h1>
+  <table>
+    <tr>
+      <td><kbd>&rarr;</kbd> <kbd>Space</kbd> <kbd>PgDn</kbd></td>
+      <td>next step</td>
+    </tr>
+    <tr>
+      <td><kbd>&larr;</kbd> <kbd>PgUp</kbd></td>
+      <td>back</td>
+    </tr>
+    <tr>
+      <td><kbd>&darr;</kbd> <kbd>&uarr;</kbd></td>
+      <td>next / previous slide</td>
+    </tr>
+    <tr>
+      <td><kbd>Home</kbd> <kbd>End</kbd></td>
+      <td>first / last slide</td>
+    </tr>
+    <tr>
+      <td>click the timer</td>
+      <td>reset it</td>
+    </tr>
+    <tr>
+      <td><kbd>?</kbd></td>
+      <td>this help</td>
+    </tr>
+  </table>
+</dialog>

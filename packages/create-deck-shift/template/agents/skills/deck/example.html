@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Deck - A simple slide deck with Web Components</title>
+    <script type="module" src="https://unpkg.com/deck-shift"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/syntax-highlight-element@1/dist/syntax-highlight-element.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/syntax-highlight-element@1/dist/themes/prettylights.css"
+    />
+    <script type="module" src="https://unpkg.com/deck-controls"></script>
+    <script type="module" src="https://unpkg.com/deck-presenter"></script>
+    <script type="module" src="https://unpkg.com/webcam-view"></script>
+    <script type="module" src="https://unpkg.com/deck-recorder"></script>
+    <script type="module">
+      import QR from "https://esm.sh/its-a-qrcode@0.6.0";
+      customElements.define("qr-code", QR);
+    </script>
+    <style>
+      :root {
+        --deck-backdrop: #0b0d12;
+        --ink: #eef1f6;
+        --dim: #8a93a3;
+        --accent: #ffb454;
+      }
+      deck-shift {
+        color: var(--ink);
+        font:
+          56px/1.3 system-ui,
+          sans-serif;
+      }
+      deck-shift::part(stage) {
+        background: #151922;
+      }
+      section {
+        padding: 120px 160px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+      }
+      h1 {
+        font-size: 150px;
+        line-height: 1;
+        margin: 0;
+        letter-spacing: -0.03em;
+      }
+      h2 {
+        font-size: 88px;
+        margin: 0;
+      }
+      p,
+      ul {
+        margin: 0;
+      }
+      li + li {
+        margin-top: 20px;
+      }
+      .dim {
+        color: var(--dim);
+      }
+      syntax-highlight,
+      .code {
+        color-scheme: dark;
+        font-size: 40px;
+        line-height: 1.5;
+        padding: 40px 48px;
+        background: #0e1118;
+        border-radius: 16px;
+      }
+      .code syntax-highlight {
+        padding: 0;
+        background: none;
+      }
+      #title {
+        justify-content: center;
+      }
+      .logo {
+        view-transition-name: logo;
+        width: 220px;
+        aspect-ratio: 1;
+        border-radius: 40px;
+        background: linear-gradient(135deg, var(--accent), #ff6b8b);
+      }
+      .line {
+        display: block;
+        view-transition-name: var(--name);
+      }
+      @container style(--deck-current-step: 0) {
+        #code .line[step] {
+          display: none;
+        }
+      }
+      @container style(--deck-current-step: 2) or style(--deck-current-step: 3) {
+        #morph li[until="1"] {
+          visibility: visible;
+          color: var(--dim);
+        }
+      }
+      #markup .logo,
+      #morph .logo {
+        position: absolute;
+        right: 120px;
+        top: 120px;
+        width: 120px;
+        border-radius: 24px;
+      }
+      #qr {
+        align-items: center;
+        justify-content: center;
+      }
+      qr-code {
+        width: 520px;
+        height: 520px;
+        background: #fff;
+        padding: 24px;
+        border-radius: 16px;
+        --qrcode-resize: true;
+      }
+      webcam-view {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        width: 320px;
+        aspect-ratio: 16 / 9;
+        border-radius: 16px;
+        view-transition-name: webcam;
+      }
+      html[data-slide="title"] webcam-view {
+        right: 6vw;
+        top: 50%;
+        width: 36vw;
+        translate: 0 -60%;
+      }
+      html:has(deck-recorder:state(recording)) webcam-view {
+        outline: 8px solid #ff4d6d;
+      }
+      html:has(deck-recorder:state(paused)) webcam-view {
+        outline-style: dashed;
+      }
+      html:not(:has(deck-recorder:state(recording))) #pause {
+        display: none;
+      }
+      .blank::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 2147483646;
+        background: #000;
+        cursor: none;
+      }
+      section::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 8px;
+        width: calc(var(--deck-current-slide) / var(--deck-slide-count) * 100%);
+        background: var(--accent);
+      }
+      code,
+      kbd {
+        font:
+          0.85em ui-monospace,
+          monospace;
+      }
+      kbd {
+        padding: 0 0.3em;
+        border: 2px solid var(--dim);
+        border-bottom-width: 5px;
+        border-radius: 10px;
+      }
+      .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+      button {
+        font: inherit;
+        font-size: 36px;
+        padding: 16px 32px;
+        border: 0;
+        border-radius: 12px;
+        background: #262d3d;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      button:hover {
+        background: var(--accent);
+        color: #111;
+      }
+      .scratch {
+        padding: 24px 32px;
+        border: 2px dashed var(--dim);
+        border-radius: 12px;
+        color: var(--dim);
+      }
+      .split {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+      #focus syntax-highlight {
+        font-size: 32px;
+      }
+      #focus li {
+        visibility: visible;
+        view-transition-name: var(--name);
+        translate: calc(var(--deck-step-on) * 40px) 0;
+      }
+      @container style(--deck-step-state: future) {
+        #focus li span {
+          color: var(--dim);
+        }
+      }
+      @container style(--deck-step-state: active) {
+        #focus li span {
+          color: var(--accent);
+        }
+      }
+      @container style(--deck-step-state: past) {
+        #focus li span {
+          color: var(--dim);
+          text-decoration: line-through;
+        }
+      }
+      @keyframes zoom-out {
+        to {
+          scale: 1.5;
+          opacity: 0;
+        }
+      }
+      @keyframes zoom-in {
+        from {
+          scale: 0.5;
+          opacity: 0;
+        }
+      }
+      :root:active-view-transition-type(zoom)::view-transition-old(root) {
+        animation: var(--deck-slide-duration) ease-in both zoom-out;
+      }
+      :root:active-view-transition-type(zoom)::view-transition-new(root) {
+        animation: var(--deck-slide-duration) ease-out both zoom-in;
+      }
+      :root:active-view-transition-type(dip)::view-transition {
+        background: #000;
+      }
+      :root:active-view-transition-type(dip)::view-transition-old(root) {
+        animation: var(--deck-slide-duration) both dip-out;
+      }
+      :root:active-view-transition-type(dip)::view-transition-new(root) {
+        animation: var(--deck-slide-duration) both dip-in;
+      }
+      @keyframes dip-out {
+        50%,
+        100% {
+          opacity: 0;
+        }
+      }
+      @keyframes dip-in {
+        0%,
+        50% {
+          opacity: 0;
+        }
+      }
+      .chart {
+        overflow: visible;
+      }
+      .chart text {
+        fill: var(--accent);
+        font-size: 64px;
+        font-weight: 700;
+      }
+      .trend {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 10;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: calc(1 - var(--deck-step-on));
+        transition: stroke-dashoffset 1.2s ease-in-out;
+      }
+      .bars rect {
+        fill: var(--ink);
+        transform-box: fill-box;
+        transform-origin: bottom;
+        scale: 1 var(--deck-step-on);
+        transition:
+          scale 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+          opacity 0.3s;
+      }
+      .bars rect:nth-child(2) {
+        transition-delay: 80ms;
+      }
+      .bars rect:nth-child(3) {
+        transition-delay: 160ms;
+      }
+      @container style(--deck-current-step: 3) {
+        .bars rect:not(.win) {
+          opacity: 0.3;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        deck-shift * {
+          transition-duration: 0s !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <deck-shift id="deck">
+      <section id="title">
+        <div class="logo"></div>
+        <h1>Deck</h1>
+        <p class="dim">A simple slide deck with Web Components</p>
+        <aside class="notes">
+          This is a deck in a single HTML file. Press S for the presenter view,
+          F for full screen, ? for every shortcut. The bar along the bottom is
+          --deck-current-slide over the slide count.
+        </aside>
+      </section>
+
+      <section id="markup" data-title="Markup">
+        <h2>A slide is a section</h2>
+        <!-- prettier-ignore -->
+        <syntax-highlight language="html">&lt;section id="intro">
+  &lt;h2>Hello&lt;/h2>
+  &lt;p step="1">Shown on step 1&lt;/p>
+  &lt;aside class="notes">Say this&lt;/aside>
+&lt;/section></syntax-highlight>
+        <p step="1">Anything with <code>step</code> waits for that press.</p>
+        <div class="logo"></div>
+        <aside class="notes">
+          Each slide is a section inside deck-shift. The logo flew into the
+          corner because it has the same view-transition-name on both slides.
+          <mark>Anything</mark> with a step attribute appears on a later press.
+        </aside>
+      </section>
+
+      <section id="morph">
+        <h2>Steps</h2>
+        <ul>
+          <li step="1" until="1">step="1" until="1" shows for step 1 only</li>
+          <li step="2">step="2" waits for step 2</li>
+          <li step="3">step="3" waits for step 3</li>
+        </ul>
+        <div class="logo"></div>
+        <aside class="notes">
+          Steps can do more than appear.
+          <mark>A</mark> range shows an element for a while,
+          <mark>then</mark> the next one waits its turn.
+          <mark>Numbers</mark> say when.
+        </aside>
+      </section>
+
+      <section id="focus">
+        <h2>Step state</h2>
+        <div class="split">
+          <ol>
+            <li step="0" until="0" style="--name: f1"><span>Arrive</span></li>
+            <li step="1" until="1" style="--name: f2"><span>Point</span></li>
+            <li step="2" until="2" style="--name: f3"><span>Leave</span></li>
+          </ol>
+          <!-- prettier-ignore -->
+          <syntax-highlight language="css">@container style(--deck-step-state: active) {
+  span { color: var(--accent); }
+}
+@container style(--deck-step-state: past) {
+  span { text-decoration: line-through; }
+}
+li {
+  translate: calc(var(--deck-step-on) * 40px) 0;
+}</syntax-highlight>
+        </div>
+        <aside class="notes">
+          Every step element knows whether it is future, active or past, and its
+          children can query that. <mark>The</mark> number --deck-step-on moves
+          the active item along, <mark>and</mark> past items are struck through.
+        </aside>
+      </section>
+
+      <section id="code" data-title="Code">
+        <h2>Code morphs too</h2>
+        <div class="code">
+          <!-- prettier-ignore -->
+          <syntax-highlight language="js" class="line" style="--name: l1">const deck = document.querySelector("deck-shift");</syntax-highlight>
+          <!-- prettier-ignore -->
+          <syntax-highlight language="js" class="line" style="--name: l2" step="1">deck.addEventListener("deckchange", log);</syntax-highlight>
+          <!-- prettier-ignore -->
+          <syntax-highlight language="js" class="line" style="--name: l3">deck.next();</syntax-highlight>
+        </div>
+        <aside class="notes">
+          Each line is its own syntax-highlight element.
+          <mark>A</mark> new line appears, and lines with a view-transition-name
+          slide into place.
+        </aside>
+      </section>
+
+      <section id="chart" data-title="Charts">
+        <h2>Charts build too</h2>
+        <svg class="chart" width="1600" height="600" viewBox="0 0 1600 600">
+          <path
+            class="trend"
+            step="1"
+            pathLength="1"
+            d="M0 560 L175 440 L350 480 L525 260 L700 120"
+          />
+          <g class="bars" step="2">
+            <rect x="860" y="300" width="160" height="300" />
+            <rect x="1110" y="240" width="160" height="360" />
+            <rect x="1360" y="100" width="160" height="500" class="win" />
+          </g>
+          <text step="3" x="1440" y="70" text-anchor="middle">+40%</text>
+        </svg>
+        <aside class="notes">
+          Inline SVG, and step works on its elements.
+          <mark>The</mark> line draws: stroke-dashoffset follows --deck-step-on.
+          <mark>Bars</mark> grow with scale, staggered by transition-delay.
+          <mark>Then</mark> the point: a style query on --deck-step dims the
+          rest.
+        </aside>
+      </section>
+
+      <section id="transitions" data-transition="zoom">
+        <h2>Transitions</h2>
+        <ul>
+          <li><code>fade</code> by default</li>
+          <li><code>slide</code> pushes the next slide in</li>
+          <li><code>none</code> cuts</li>
+        </ul>
+        <p step>Or your own: <code>data-transition="zoom"</code></p>
+        <!-- prettier-ignore -->
+        <syntax-highlight language="css" step>:root:active-view-transition-type(zoom)
+  ::view-transition-new(root) {
+  animation: 0.6s ease-out both zoom-in;
+}</syntax-highlight>
+        <aside class="notes">
+          Every change is a view transition, typed by the slide it goes to.
+          <mark>This</mark> slide zoomed in with its own type. The durations are
+          --deck-slide-duration and --deck-step-duration.
+        </aside>
+      </section>
+
+      <section id="commands" data-title="Commands">
+        <h2>Buttons need no script</h2>
+        <!-- prettier-ignore -->
+        <syntax-highlight language="html">&lt;button command="--goto:focus.2" commandfor="deck">
+  Step state, step 2
+&lt;/button></syntax-highlight>
+        <div class="buttons">
+          <button command="--goto:focus.2" commandfor="deck">
+            Step state, step 2
+          </button>
+          <button command="--help" commandfor="deck">Shortcuts</button>
+          <button command="--present" commandfor="deck">Presenter</button>
+          <button command="--fullscreen" commandfor="deck">Full screen</button>
+        </div>
+        <p class="scratch" contenteditable data-no-advance>
+          data-no-advance: click and type here, the deck stays put.
+        </p>
+        <aside class="notes">
+          Invoker commands drive the deck, including commands other components
+          add, like --present. Buttons, links and form controls never advance
+          the slide, and data-no-advance opts anything else out.
+        </aside>
+      </section>
+
+      <section id="script">
+        <h2>Script it</h2>
+        <!-- prettier-ignore -->
+        <syntax-highlight language="js">deck.addEventListener("deckchange", (e) => {
+  document.documentElement.dataset.slide = e.id;
+});
+deck.addShortcut("--blank", "b", blank, "Blank the screen");</syntax-highlight>
+        <p>That made the webcam big on the title slide.</p>
+        <p>Press <kbd>B</kbd> to blank the screen, <kbd>?</kbd> to see it.</p>
+        <aside class="notes">
+          deckchange fires inside the transition, so anything it changes
+          animates. addShortcut adds a key, a command and a help row.
+        </aside>
+      </section>
+
+      <section id="presenter" data-transition="dip" data-title="Presenter">
+        <h2>Presenter view</h2>
+        <p>
+          Press <kbd>S</kbd>: timer, clock, the next slide, and these notes.
+        </p>
+        <p step="1">Each <code>&lt;mark></code> in the notes is a press.</p>
+        <!-- prettier-ignore -->
+        <syntax-highlight language="html" step="2">&lt;deck-presenter>
+  &lt;template>
+    &lt;style>::part(cue-next) { background: #ffb454; }&lt;/style>
+    &lt;webcam-view mirror>&lt;/webcam-view>
+  &lt;/template>
+&lt;/deck-presenter></syntax-highlight>
+        <aside class="notes">
+          A new chapter, so this slide dipped through black. Press S now. The
+          presenter window shows these notes and highlights the next cue,
+          <mark>so</mark> you know when to press. <mark>A</mark> template child
+          injects styles, scripts and elements, like the webcam in its corner.
+        </aside>
+      </section>
+
+      <section id="record" data-title="Record">
+        <h2>Record the talk</h2>
+        <ul>
+          <li><kbd>R</kbd> records camera, mic, steps, clicks and keys</li>
+          <li><kbd>.</kbd> pauses, marking a cut</li>
+          <li><code>npx deck-replay</code> turns it into a video</li>
+        </ul>
+        <div class="buttons">
+          <button id="rec" command="--record" commandfor="deck">Record</button>
+          <button id="pause" command="--record-pause" commandfor="deck">
+            Pause
+          </button>
+        </div>
+        <aside class="notes">
+          The recording is a Puppeteer Replay flow, timed against the video. The
+          webcam outline comes from the recorder's :state(recording).
+        </aside>
+      </section>
+
+      <section id="qr" data-transition="slide" data-title="Components">
+        <qr-code>https://github.com/keithamus</qr-code>
+        <p class="dim">Any web component works</p>
+        <aside class="notes">
+          This one slides in, and the QR code is a web component loaded from a
+          CDN.
+        </aside>
+      </section>
+    </deck-shift>
+    <deck-controls></deck-controls>
+    <deck-presenter>
+      <template>
+        <script
+          type="module"
+          src="https://unpkg.com/webcam-view"
+        ></script>
+        <style>
+          webcam-view {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 280px;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+          }
+          ::part(cue-next) {
+            background: #ffb454;
+          }
+        </style>
+        <webcam-view mirror></webcam-view>
+      </template>
+    </deck-presenter>
+    <webcam-view mirror></webcam-view>
+    <deck-recorder></deck-recorder>
+    <script type="module">
+      const deck = document.getElementById("deck");
+      const root = document.documentElement;
+      const blank = () => root.classList.toggle("blank");
+      root.dataset.slide = deck.slides[deck.slide].id;
+      deck.addEventListener("deckchange", (e) => {
+        document.documentElement.dataset.slide = e.id;
+      });
+      deck.addShortcut("--blank", "b", blank, "Blank the screen");
+      addEventListener("deck-recorder-change", (e) => {
+        document.getElementById("rec").textContent = e.recording
+          ? "Stop"
+          : "Record";
+        document.getElementById("pause").textContent = e.paused
+          ? "Resume"
+          : "Pause";
+      });
+    </script>
+  </body>
+</html>

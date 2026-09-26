@@ -1,0 +1,44 @@
+{
+  "name": "deck-recorder",
+  "version": "0.1.2",
+  "description": "Records a <deck-shift> talk as a webcam video plus a timed Puppeteer Replay flow, and replays them into one video.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "slides",
+    "presentation",
+    "recording",
+    "puppeteer",
+    "replay"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "exports": "./deck-recorder.min.js",
+  "bin": {
+    "deck-replay": "./replay.js"
+  },
+  "files": [
+    "deck-recorder.min.js",
+    "replay.js"
+  ],
+  "scripts": {
+    "build": "node esbuild.js"
+  },
+  "peerDependencies": {
+    "@puppeteer/replay": "^4.0.2",
+    "deck-shift": "^0.1.0",
+    "puppeteer": "^25.12.0",
+    "webcam-view": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@puppeteer/replay": {
+      "optional": true
+    },
+    "puppeteer": {
+      "optional": true
+    },
+    "webcam-view": {
+      "optional": true
+    }
+  }
+}

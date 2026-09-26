@@ -1,0 +1,70 @@
+:host {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  background: var(--deck-backdrop);
+}
+
+[part="stage"] {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--deck-width);
+  height: var(--deck-height);
+  overflow: hidden;
+  translate: -50% -50%;
+  scale: min(100cqw / var(--deck-width), 100cqh / var(--deck-height));
+}
+
+::slotted(section) {
+  position: absolute;
+  inset: 0;
+  --deck-slide-state: active;
+}
+
+dialog {
+  border: 0;
+  padding: 24px 30px 18px;
+  border-radius: 12px;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: min(760px, 92vw);
+  font:
+    15px/1.5 ui-sans-serif,
+    system-ui,
+    sans-serif;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: 18px;
+  }
+
+  td {
+    padding: 3px 14px 3px 0;
+    vertical-align: top;
+  }
+
+  td:first-child {
+    color: #555;
+    white-space: nowrap;
+  }
+
+  kbd {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 0.35em;
+    border: 1px solid rgba(127, 127, 127, 0.45);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    font:
+      600 0.85em/1.5 ui-monospace,
+      monospace;
+    text-align: center;
+  }
+}

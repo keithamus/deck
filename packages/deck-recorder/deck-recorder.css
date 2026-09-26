@@ -1,0 +1,33 @@
+:host {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2147483647;
+  pointer-events: none;
+}
+.rec {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--deck-ui-bg, rgba(22, 22, 24, 0.88));
+  color: var(--deck-ui-fg, #f4f4f4);
+  font:
+    600 14px/1 ui-monospace,
+    monospace;
+}
+:host(:state(recording)) .rec {
+  display: flex;
+}
+.dot {
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e5484d;
+}
+:host(:state(paused)) .dot {
+  border: 2px solid #e5484d;
+  background: none;
+}

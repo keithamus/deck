@@ -1,0 +1,23 @@
+{
+  "name": "create-deck-shift",
+  "version": "0.1.2",
+  "description": "Starts a <deck-shift> slide deck: npm create deck-shift.",
+  "keywords": [
+    "slides",
+    "presentation",
+    "scaffold",
+    "create"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "bin": {
+    "create-deck-shift": "./create-deck-shift.js"
+  },
+  "files": [
+    "create-deck-shift.js",
+    "template"
+  ],
+  "scripts": {
+    "build": "echo ''"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "deck-controls",
+  "version": "0.1.2",
+  "description": "On-screen playback controls for a <deck-shift> slide deck.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "slides",
+    "presentation"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "exports": "./deck-controls.min.js",
+  "files": [
+    "deck-controls.min.js"
+  ],
+  "scripts": {
+    "build": "node esbuild.js"
+  },
+  "peerDependencies": {
+    "deck-shift": "^0.1.0"
+  }
+}

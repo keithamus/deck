@@ -1,0 +1,21 @@
+{
+  "name": "webcam-view",
+  "version": "0.1.2",
+  "description": "A custom element that shows the webcam, or plays a video in its place.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "webcam",
+    "camera",
+    "video"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "exports": "./webcam-view.min.js",
+  "files": [
+    "webcam-view.min.js"
+  ],
+  "scripts": {
+    "build": "node esbuild.js"
+  }
+}

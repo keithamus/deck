@@ -1,0 +1,24 @@
+{
+  "name": "deck-presenter",
+  "version": "0.1.2",
+  "description": "A presenter window for a <deck-shift> slide deck: timer, current and next slide, and notes with cues.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "slides",
+    "presentation",
+    "speaker-notes"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "exports": "./deck-presenter.min.js",
+  "files": [
+    "deck-presenter.min.js"
+  ],
+  "scripts": {
+    "build": "node esbuild.js"
+  },
+  "peerDependencies": {
+    "deck-shift": "^0.1.0"
+  }
+}

@@ -1,0 +1,136 @@
+@layer deck-shift {
+  @property --deck-width {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1920px;
+  }
+
+  @property --deck-height {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1080px;
+  }
+
+  @property --deck-slide-duration {
+    syntax: "<time>";
+    inherits: true;
+    initial-value: 0.6s;
+  }
+
+  @property --deck-step-duration {
+    syntax: "<time>";
+    inherits: true;
+    initial-value: 0.35s;
+  }
+
+  @property --deck-backdrop {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000;
+  }
+
+  @property --deck-slide-state {
+    syntax: "active | past | future";
+    inherits: true;
+    initial-value: future;
+  }
+
+  @property --deck-step-state {
+    syntax: "active | past | future";
+    inherits: true;
+    initial-value: future;
+  }
+
+  @property --deck-step-on {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+  @property --deck-slide-count {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 1;
+  }
+
+  @property --deck-step-count {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+  @property --deck-current-slide {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+  @property --deck-current-step {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+  @keyframes deck-out {
+    to {
+      translate: -100vw 0;
+    }
+  }
+  @keyframes deck-in {
+    from {
+      translate: 100vw 0;
+    }
+  }
+
+  deck-shift aside.notes {
+    display: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: var(--deck-slide-duration);
+
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 0s !important;
+    }
+  }
+
+  :root {
+    &:active-view-transition-type(step) {
+      &::view-transition-group(*),
+      &::view-transition-old(*),
+      &::view-transition-new(*) {
+        animation-duration: var(--deck-step-duration);
+      }
+    }
+
+    &:active-view-transition-type(slide) {
+      &::view-transition-old(root),
+      &::view-transition-old(*):only-child {
+        animation: var(--deck-slide-duration) ease-in-out both deck-out;
+      }
+    }
+
+    &:active-view-transition-type(slide) {
+      &::view-transition-new(root),
+      &::view-transition-new(*):only-child {
+        animation: var(--deck-slide-duration) ease-in-out both deck-in;
+      }
+
+      &:active-view-transition-type(back) {
+        &::view-transition-old(root),
+        &::view-transition-old(*):only-child {
+          animation-name: deck-in;
+          animation-direction: reverse;
+        }
+
+        &::view-transition-new(root),
+        &::view-transition-new(*):only-child {
+          animation-name: deck-out;
+          animation-direction: reverse;
+        }
+      }
+    }
+  }
+}
