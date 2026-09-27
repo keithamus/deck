@@ -1,0 +1,23 @@
+{
+  "name": "vertical-video-safe-area",
+  "version": "0.1.2",
+  "description": "On-screen overlay assisting with short form vertical video recording.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "slides",
+    "presentation"
+  ],
+  "author": "Keith Cirkel",
+  "type": "module",
+  "exports": "./vertical-video-safe-area.min.js",
+  "files": [
+    "vertical-video-safe-area.min.js"
+  ],
+  "scripts": {
+    "build": "node esbuild.js"
+  },
+  "peerDependencies": {
+    "deck-shift": "^0.1.0"
+  }
+}
