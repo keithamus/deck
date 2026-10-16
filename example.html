@@ -604,14 +604,6 @@ li {
         document.documentElement.dataset.slide = e.id;
       });
       deck.addShortcut("--blank", "b", blank, "Blank the screen");
-      addEventListener("deck-recorder-change", (e) => {
-        document.getElementById("rec").textContent = e.recording
-          ? "Stop"
-          : "Record";
-        document.getElementById("pause").textContent = e.paused
-          ? "Resume"
-          : "Pause";
-      });
     </script>
   </body>
 </html>
