@@ -15,8 +15,12 @@
     />
     <script type="module" src="https://unpkg.com/deck-controls"></script>
     <script type="module" src="https://unpkg.com/deck-presenter"></script>
-    <script type="module" src="https://unpkg.com/webcam-view"></script>
+    <script type="module" src="./packages/webcam-view/webcam-view.js"></script>
     <script type="module" src="https://unpkg.com/deck-recorder"></script>
+    <script
+      type="module"
+      src="./packages/vertical-video-safe-area/vertical-video-safe-area.js"
+    ></script>
     <script type="module">
       import QR from "https://esm.sh/its-a-qrcode@0.6.0";
       customElements.define("qr-code", QR);
@@ -129,12 +133,51 @@
         aspect-ratio: 16 / 9;
         border-radius: 16px;
         view-transition-name: webcam;
+        --chromakey: #6ca33d;
+        --chromakey-smoothness: 0;
+        --chromakey-feather: 0;
+        z-index: 2;
       }
-      html[data-slide="title"] webcam-view {
+      html[data-slide="title"]:not(:has(vertical-video-safe-area)) webcam-view {
         right: 6vw;
         top: 50%;
         width: 36vw;
         translate: 0 -60%;
+      }
+      html:has(vertical-video-safe-area) webcam-view {
+        --scale: min(100vw / var(--deck-width), 100vh / var(--deck-height));
+        right: calc(50vw - var(--deck-width) * var(--scale) / 2);
+        bottom: calc(50vh - var(--deck-height) * var(--scale) / 2);
+        width: calc(var(--deck-width) * var(--scale));
+        height: calc(var(--deck-height) * var(--scale) / 2);
+        border-radius: 0;
+      }
+      html:has(vertical-video-safe-area) section {
+        padding-top: calc(var(--deck-height) * 0.14);
+        padding-right: calc(var(--deck-width) * 0.1704);
+        padding-bottom: calc(var(--deck-height) * 0.35);
+        padding-left: calc(var(--deck-width) * 0.1);
+      }
+      html:has(vertical-video-safe-area) section > :not(.logo) {
+        zoom: 0.8;
+      }
+      html:has(vertical-video-safe-area) syntax-highlight {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      html:has(vertical-video-safe-area) .split {
+        grid-template-columns: 1fr;
+      }
+      html:has(vertical-video-safe-area) :is(ul, ol) {
+        list-style-position: inside;
+      }
+      html:has(vertical-video-safe-area) .chart {
+        width: 100%;
+        height: auto;
+      }
+      html:has(vertical-video-safe-area) :is(#markup, #morph) .logo {
+        top: calc(var(--deck-height) * 0.14);
+        right: calc(var(--deck-width) * 0.14);
       }
       html:has(deck-recorder:state(recording)) webcam-view {
         outline: 8px solid #ff4d6d;
@@ -161,6 +204,7 @@
         height: 8px;
         width: calc(var(--deck-current-slide) / var(--deck-slide-count) * 100%);
         background: var(--accent);
+        z-index: 3;
       }
       code,
       kbd {
@@ -559,6 +603,7 @@ deck.addShortcut("--blank", "b", blank, "Blank the screen");</syntax-highlight>
     </deck-presenter>
     <webcam-view mirror></webcam-view>
     <deck-recorder></deck-recorder>
+    <vertical-video-safe-area></vertical-video-safe-area>
     <script type="module">
       const deck = document.getElementById("deck");
       const root = document.documentElement;
