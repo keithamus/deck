@@ -1,7 +1,7 @@
 {
   "name": "webcam-view",
   "version": "0.1.2",
-  "description": "A custom element that shows the webcam, or plays a video in its place.",
+  "description": "A custom element that shows the webcam, or plays a video in its place, and can key out a green screen.",
   "keywords": [
     "web-components",
     "custom-elements",

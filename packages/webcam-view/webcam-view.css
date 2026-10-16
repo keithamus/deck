@@ -3,13 +3,18 @@
   overflow: hidden;
 }
 
-video {
+video,
+canvas {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-:host([mirror]) video {
+[hidden] {
+  display: none;
+}
+
+:host([mirror]) :is(video, canvas) {
   scale: -1 1;
 }
