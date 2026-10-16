@@ -363,9 +363,9 @@
         <h1>Deck</h1>
         <p class="dim">A simple slide deck with Web Components</p>
         <aside class="notes">
-          This is a deck in a single HTML file. Press S for the presenter view,
-          F for full screen, ? for every shortcut. The bar along the bottom is
-          --deck-current-slide over the slide count.
+          This is a single HTML file using the the deck-shift web component,
+          which gives it slide deck superpowers. Everything is built in HTML and
+          CSS.
         </aside>
       </section>
 
@@ -377,12 +377,11 @@
   &lt;p step="1">Shown on step 1&lt;/p>
   &lt;aside class="notes">Say this&lt;/aside>
 &lt;/section></syntax-highlight>
-        <p step="1">Anything with <code>step</code> waits for that press.</p>
         <div class="logo"></div>
         <aside class="notes">
-          Each slide is a section inside deck-shift. The logo flew into the
-          corner because it has the same view-transition-name on both slides.
-          <mark>Anything</mark> with a step attribute appears on a later press.
+          Each slide is a section element, and thanks to view transitions it's
+          super easy to animate. That logo that just flew into the corner was
+          one line of CSS.
         </aside>
       </section>
 
@@ -391,14 +390,15 @@
         <ul>
           <li step="1" until="1">step="1" until="1" shows for step 1 only</li>
           <li step="2">step="2" waits for step 2</li>
-          <li step="3">step="3" waits for step 3</li>
+          <li step="2">step="3" waits for step 3</li>
         </ul>
         <div class="logo"></div>
         <aside class="notes">
-          Steps can do more than appear.
-          <mark>A</mark> range shows an element for a while,
-          <mark>then</mark> the next one waits its turn.
-          <mark>Numbers</mark> say when.
+          Intra-slide transitions are possible with simple attributes.
+          <mark>Use</mark> attributes like step and until to show elements for
+          only part of a slide, or use CSS properties to fade bits in and out.
+          <mark>And</mark> the mark element inside speaker notes helps you
+          present on each beat.
         </aside>
       </section>
 
@@ -422,9 +422,9 @@ li {
 }</syntax-highlight>
         </div>
         <aside class="notes">
-          Every step element knows whether it is future, active or past, and its
-          children can query that. <mark>The</mark> number --deck-step-on moves
-          the active item along, <mark>and</mark> past items are struck through.
+          <mark>There</mark> are a whole bunch of css variables, like
+          --deck-step-on to help you <mark>bring</mark> slides to life using CSS
+          features like container queries.
         </aside>
       </section>
 
@@ -439,9 +439,18 @@ li {
           <syntax-highlight language="js" class="line" style="--name: l3">deck.next();</syntax-highlight>
         </div>
         <aside class="notes">
-          Each line is its own syntax-highlight element.
-          <mark>A</mark> new line appears, and lines with a view-transition-name
-          slide into place.
+          Want extra functionality? Just bring in new web components!
+          <mark>Here's</mark> an example of the syntax-highlight npm package
+          which fits perfectly with step transitions too!
+        </aside>
+      </section>
+
+      <section id="qr" data-transition="slide" data-title="Components">
+        <qr-code>https://github.com/keithamus</qr-code>
+        <p class="dim">Any web component works</p>
+        <aside class="notes">
+          Or how about this qr-code component for adding QR codes to your
+          slides?
         </aside>
       </section>
 
@@ -462,11 +471,9 @@ li {
           <text step="3" x="1440" y="70" text-anchor="middle">+40%</text>
         </svg>
         <aside class="notes">
-          Inline SVG, and step works on its elements.
-          <mark>The</mark> line draws: stroke-dashoffset follows --deck-step-on.
-          <mark>Bars</mark> grow with scale, staggered by transition-delay.
-          <mark>Then</mark> the point: a style query on --deck-step dims the
-          rest.
+          Want graphs? Just inline SVG. <mark>Add</mark> simple fades with the
+          step attribute. <mark>Or</mark> use staggered CSS animations to add
+          visual interest and <mark>steps</mark> to fade in key figures.
         </aside>
       </section>
 
@@ -484,9 +491,8 @@ li {
   animation: 0.6s ease-out both zoom-in;
 }</syntax-highlight>
         <aside class="notes">
-          Every change is a view transition, typed by the slide it goes to.
-          <mark>This</mark> slide zoomed in with its own type. The durations are
-          --deck-slide-duration and --deck-step-duration.
+          Every change is a view transition, so go wild by implementing your
+          <mark>own</mark> like this single line of CSS.
         </aside>
       </section>
 
@@ -508,9 +514,11 @@ li {
           data-no-advance: click and type here, the deck stays put.
         </p>
         <aside class="notes">
-          Invoker commands drive the deck, including commands other components
-          add, like --present. Buttons, links and form controls never advance
-          the slide, and data-no-advance opts anything else out.
+          Use the browsers built in command and commandfor pattern, with custom
+          buttons to drive the deck. Clicking on the page advances a slide but
+          it's smart, meaning clicking buttons, link or other interactive
+          controls won't advance the slide. Your own interactive regions can use
+          data-no-advance to stop clicks advancing too.
         </aside>
       </section>
 
@@ -520,33 +528,10 @@ li {
         <syntax-highlight language="js">deck.addEventListener("deckchange", (e) => {
   document.documentElement.dataset.slide = e.id;
 });
-deck.addShortcut("--blank", "b", blank, "Blank the screen");</syntax-highlight>
-        <p>That made the webcam big on the title slide.</p>
-        <p>Press <kbd>B</kbd> to blank the screen, <kbd>?</kbd> to see it.</p>
+        </syntax-highlight>
         <aside class="notes">
-          deckchange fires inside the transition, so anything it changes
-          animates. addShortcut adds a key, a command and a help row.
-        </aside>
-      </section>
-
-      <section id="presenter" data-transition="dip" data-title="Presenter">
-        <h2>Presenter view</h2>
-        <p>
-          Press <kbd>S</kbd>: timer, clock, the next slide, and these notes.
-        </p>
-        <p step="1">Each <code>&lt;mark></code> in the notes is a press.</p>
-        <!-- prettier-ignore -->
-        <syntax-highlight language="html" step="2">&lt;deck-presenter>
-  &lt;template>
-    &lt;style>::part(cue-next) { background: #ffb454; }&lt;/style>
-    &lt;webcam-view mirror>&lt;/webcam-view>
-  &lt;/template>
-&lt;/deck-presenter></syntax-highlight>
-        <aside class="notes">
-          A new chapter, so this slide dipped through black. Press S now. The
-          presenter window shows these notes and highlights the next cue,
-          <mark>so</mark> you know when to press. <mark>A</mark> template child
-          injects styles, scripts and elements, like the webcam in its corner.
+          Speaking of script, you can script events like deckchange, adding
+          limitless functionality.
         </aside>
       </section>
 
@@ -557,24 +542,27 @@ deck.addShortcut("--blank", "b", blank, "Blank the screen");</syntax-highlight>
           <li><kbd>.</kbd> pauses, marking a cut</li>
           <li><code>npx deck-replay</code> turns it into a video</li>
         </ul>
-        <div class="buttons">
-          <button id="rec" command="--record" commandfor="deck">Record</button>
-          <button id="pause" command="--record-pause" commandfor="deck">
-            Pause
-          </button>
-        </div>
         <aside class="notes">
-          The recording is a Puppeteer Replay flow, timed against the video. The
-          webcam outline comes from the recorder's :state(recording).
+          There's loads more too; the deck-recorder component lets you record a
+          slide deck video, just like the one you're watching now! Your
+          microphone and webcam gets saved to a video, along with some JSON.
+          `npx deck-replay` reads it and uses Puppeteer to turn that into a
+          single video for you.
         </aside>
       </section>
 
-      <section id="qr" data-transition="slide" data-title="Components">
-        <qr-code>https://github.com/keithamus</qr-code>
-        <p class="dim">Any web component works</p>
+      <section id="start" data-title="Start">
+        <h2>Start your own deck</h2>
+        <syntax-highlight>npm create deck-shift my-talk</syntax-highlight>
+        <syntax-highlight
+          >npm create deck-shift my-talk --agents</syntax-highlight
+        >
+        <p class="dim">Add <code>--agents</code> for LLM skills</p>
         <aside class="notes">
-          This one slides in, and the QR code is a web component loaded from a
-          CDN.
+          Make your own now, just run npm create deck-shift, and give it a
+          directory name and it'll set you up with a deck just like this one.
+          Add the --agents flag and your favourite coding agent can vibe with
+          you!
         </aside>
       </section>
     </deck-shift>
