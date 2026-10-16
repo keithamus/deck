@@ -203,14 +203,16 @@ export class DeckRecorder extends HTMLElement {
     });
     const started = new Date().toISOString();
 
+    const stage = deck.shadowRoot.querySelector("[part=stage]");
+    const { offsetWidth: width, offsetHeight: height } = stage;
     step({
       type: "setViewport",
-      width: innerWidth,
-      height: innerHeight,
-      deviceScaleFactor: devicePixelRatio,
+      width,
+      height,
+      deviceScaleFactor: 1,
       isMobile: false,
       hasTouch: false,
-      isLandscape: innerWidth >= innerHeight,
+      isLandscape: width >= height,
     });
     step({ type: "navigate", url: location.href });
     deck.addEventListener(
@@ -250,14 +252,18 @@ export class DeckRecorder extends HTMLElement {
     addEventListener(
       "click",
       (e) => {
-        const [el] = e.composedPath();
-        if (moved() || !e.detail || !e.composedPath().includes(deck)) return;
+        const path = e.composedPath();
+        const [el] = path;
+        if (moved() || !e.detail || !path.includes(deck)) return;
         const r = el.getBoundingClientRect();
+        const deckPxPerPx = path.includes(stage)
+          ? width / stage.getBoundingClientRect().width
+          : 1;
         step({
           type: "click",
           selectors: [selector(el)],
-          offsetX: Math.round(e.clientX - r.left),
-          offsetY: Math.round(e.clientY - r.top),
+          offsetX: Math.round((e.clientX - r.left) * deckPxPerPx),
+          offsetY: Math.round((e.clientY - r.top) * deckPxPerPx),
         });
       },
       { signal },

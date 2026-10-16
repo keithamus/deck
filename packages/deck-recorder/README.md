@@ -26,13 +26,14 @@ and the recording marks the cut. Press <kbd>R</kbd> again to download the video
 (`recording-<time>.webm`) and its flow (`recording-<time>.json`).
 
 The flow is a [Puppeteer Replay] user flow which means a tool like
-[Chrome DevTools Recorder] can replay it. `setViewport` and a `navigate` to
-the deck, a `navigate` to `#<slide>.<step>` for each change, `click` (selectors
-pierce shadow roots) and `keyDown`/`keyUp` steps, and a `customStep` named
-`pause` at each cut. Every step also has `t`, the ms into the video it happened;
-the flow also has `video` (its file name), `started`, `duration` and `slides`
-(the deck's `script()`). Why is this useful? Combine it with `deck-replay` to
-get a video!
+[Chrome DevTools Recorder] can replay it. `setViewport` to the deck's size
+(`--deck-width` by `--deck-height`, at 1x, whatever the window was) and a
+`navigate` to the deck, a `navigate` to `#<slide>.<step>` for each change,
+`click` (selectors pierce shadow roots, offsets in deck pixels) and
+`keyDown`/`keyUp` steps, and a `customStep` named `pause` at each cut. Every
+step also has `t`, the ms into the video it happened; the flow also has `video`
+(its file name), `started`, `duration` and `slides` (the deck's `script()`). Why
+is this useful? Combine it with `deck-replay` to get a video!
 
 ```sh
 npm install puppeteer @puppeteer/replay
@@ -40,9 +41,11 @@ npx deck-replay recording-<time>.json [--out video.mp4] [--headed]
 ```
 
 That replays the recording in a browser, while also screen-recording the page in
-Chrome as the steps play, laying the recording's sound under it. The deck opens
-with `?replay` added to its URL, so anything that shouldn't be in the video, such
-as a [`vertical-video-safe-area`], can hide itself.
+Chrome as the steps play, laying the recording's sound under it. The video is
+the slide and nothing else: 1920x1080 by default, 1080x1920 with a
+[`vertical-video-safe-area`]. The deck opens with `?replay` added to its URL, so
+anything that shouldn't be in the video, such as the safe area's overlay, can
+hide itself.
 
 ## Styling & API
 
