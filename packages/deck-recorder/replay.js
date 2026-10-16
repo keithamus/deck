@@ -34,6 +34,12 @@ if (!file) {
 
 const dir = dirname(resolve(file));
 const flow = JSON.parse(await readFile(file, "utf8"));
+for (const step of flow.steps) {
+  if (step.type !== "navigate") continue;
+  const url = new URL(step.url);
+  url.searchParams.set("replay", "");
+  step.url = url.href;
+}
 const video = await readFile(join(dir, flow.video));
 const screen = join(dir, `${flow.title}.screen.webm`);
 const out = resolve(opt.out ?? join(dir, `${flow.title}.mp4`));

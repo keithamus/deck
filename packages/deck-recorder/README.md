@@ -40,7 +40,9 @@ npx deck-replay recording-<time>.json [--out video.mp4] [--headed]
 ```
 
 That replays the recording in a browser, while also screen-recording the page in
-Chrome as the steps play, laying the recording's sound under it.
+Chrome as the steps play, laying the recording's sound under it. The deck opens
+with `?replay` added to its URL, so anything that shouldn't be in the video, such
+as a [`vertical-video-safe-area`], can hide itself.
 
 ## Styling & API
 
@@ -54,4 +56,5 @@ It adds the custom `--record` and `--record-pause` commands, meaning it can be
 scripted also.
 
 [`webcam-view`]: ../webcam-view
+[`vertical-video-safe-area`]: ../vertical-video-safe-area
 [Puppeteer Replay]: https://github.com/puppeteer/replay
