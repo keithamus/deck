@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - run: npm i --workspaces
+      - run: npm ci
       - run: npm run build --workspaces
       - run: npm version ${TAG_NAME} --git-tag-version=false --workspaces
         env:

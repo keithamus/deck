@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "replay": "node packages/deck-recorder/replay.mjs"
+    "replay": "node packages/deck-recorder/replay.js"
   },
   "devDependencies": {
     "@puppeteer/replay": "^4.0.2",

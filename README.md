@@ -11,6 +11,8 @@ its own npm package, in `packages/`:
   a timed Puppeteer Replay flow) and replays it into a video.
 - [`webcam-view`](packages/webcam-view): shows the webcam, or plays a video in
   its place.
+- [`vertical-video-safe-area`](packages/vertical-video-safe-area): marks the
+  areas short-form video apps cover, and turns the deck vertical.
 - [`deck-check`](packages/deck-check): lints every slide and step of a deck in
   Chrome, and draws a contact sheet.
 - [`create-deck-shift`](packages/create-deck-shift): `npm create deck-shift`
