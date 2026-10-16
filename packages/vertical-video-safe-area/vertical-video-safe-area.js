@@ -14,7 +14,6 @@ export class VerticalVideoSafeArea extends HTMLElement {
 
   connectedCallback() {
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, PAGE];
-    console.log(PAGE);
     if (new URLSearchParams(location.search).has("replay")) this.hidden = true;
   }
 }
