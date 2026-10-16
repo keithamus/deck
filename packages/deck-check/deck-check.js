@@ -85,6 +85,34 @@ function lint() {
     found.push({ level, kind, el: label(el), detail });
   const shown = (el) =>
     el.checkVisibility({ visibilityProperty: true, opacityProperty: true });
+  const boxed = (cs) =>
+    cs.backgroundColor !== "rgba(0, 0, 0, 0)" ||
+    cs.backgroundImage !== "none" ||
+    parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth) > 0;
+  const inter = (a, b) => [
+    Math.min(a.r, b.r) - Math.max(a.l, b.l),
+    Math.min(a.b, b.b) - Math.max(a.t, b.t),
+  ];
+  const scaled = (el) => {
+    let s = el.currentCSSZoom;
+    for (let p = el; p && p !== deck; p = p.parentElement) {
+      const cs = getComputedStyle(p);
+      if (cs.scale !== "none") {
+        const [x, y = x] = cs.scale.split(" ").map(Number);
+        s *= Math.abs(y);
+      }
+      if (cs.transform !== "none") {
+        const m = new DOMMatrixReadOnly(cs.transform);
+        s *= Math.hypot(m.c, m.d);
+      }
+    }
+    return s;
+  };
+  const unsafe = [
+    ...(document
+      .querySelector("vertical-video-safe-area")
+      ?.shadowRoot?.querySelectorAll("[part~=unsafe]") ?? []),
+  ].map((c) => at(c.getBoundingClientRect()));
 
   const texts = [];
   const walk = document.createTreeWalker(section, NodeFilter.SHOW_TEXT);
@@ -112,13 +140,15 @@ function lint() {
 
   const snip = (t) => JSON.stringify(t.length > 40 ? `${t.slice(0, 39)}...` : t);
   let words = 0;
-  for (const { el, text, box } of texts) {
+  for (const { el, text, box, rects } of texts) {
     words += text.split(" ").length;
     let size = parseFloat(getComputedStyle(el).fontSize);
     if (el instanceof SVGElement && el.getBBox) {
       const bb = el.getBBox();
       const r = el.getBoundingClientRect();
       if (bb.height) size *= r.height / bb.height / k;
+    } else {
+      size *= scaled(el);
     }
     if (size < 20)
       add("error", "tiny-text", el, `${snip(text)} at ${size.toFixed(1)}px`);
@@ -126,14 +156,16 @@ function lint() {
       const edge = Math.min(box.l, box.t, W - box.r, H - box.b);
       if (edge < 38)
         add("error", "safe-area", el, `${snip(text)} ${Math.round(edge)}px from the edge`);
+      const under = rects.some((x) =>
+        unsafe.some((u) => {
+          const [w, h] = inter(x, u);
+          return w > 2 && h > 0.25 * (x.b - x.t);
+        }),
+      );
+      if (under) add("error", "unsafe-area", el, `${snip(text)} in an unsafe area`);
     }
     for (let p = el; p && p !== section; p = p.parentElement) {
-      const cs = getComputedStyle(p);
-      const boxed =
-        cs.backgroundColor !== "rgba(0, 0, 0, 0)" ||
-        cs.backgroundImage !== "none" ||
-        parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth) > 0;
-      if (!boxed) continue;
+      if (!boxed(getComputedStyle(p))) continue;
       const b = at(p.getBoundingClientRect());
       const out = Math.max(b.l - box.l, box.r - b.r, b.t - box.t, box.b - b.b);
       if (out > 1)
@@ -158,6 +190,7 @@ function lint() {
     }
   }
 
+  const painted = [];
   for (const el of section.querySelectorAll("*")) {
     if (!shown(el) || el.closest("aside.notes, [data-lint-skip]")) continue;
     const cs = getComputedStyle(el);
@@ -166,10 +199,44 @@ function lint() {
       (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)
     )
       add("error", "overflow", el, `content clipped (${el.scrollWidth}x${el.scrollHeight} in ${el.clientWidth}x${el.clientHeight})`);
+    const b = at(el.getBoundingClientRect());
+    if (
+      b.r > b.l &&
+      (boxed(cs) ||
+        el instanceof SVGSVGElement ||
+        ["img", "video", "canvas", "iframe"].includes(el.localName))
+    ) {
+      painted.push(el);
+      if (
+        !el.closest("[data-bleed]") &&
+        unsafe.some((u) => inter(b, u).every((d) => d > 1))
+      )
+        add("error", "unsafe-area", el, "in an unsafe area");
+    }
     if (!el.closest("[data-bleed]")) {
-      const b = at(el.getBoundingClientRect());
       if (b.r > b.l && (b.l < -1 || b.t < -1 || b.r > W + 1 || b.b > H + 1))
         add("error", "off-canvas", el, `extends past the ${W}x${H} slide`);
+    }
+  }
+
+  for (const t of texts) {
+    cover: for (const p of painted) {
+      if (p.contains(t.el) || t.el.contains(p)) continue;
+      const b = at(p.getBoundingClientRect());
+      for (const x of t.rects) {
+        const [w, h] = inter(x, b);
+        if (w <= 2 || h <= 0.25 * (x.b - x.t)) continue;
+        const stack = document.elementsFromPoint(
+          S.left + (k * (Math.max(x.l, b.l) + Math.min(x.r, b.r))) / 2,
+          S.top + (k * (Math.max(x.t, b.t) + Math.min(x.b, b.b))) / 2,
+        );
+        const over = stack.indexOf(p);
+        const under = stack.findIndex((e) => e.contains(t.el));
+        if (over >= 0 && (under < 0 || over < under)) {
+          add("error", "covered", t.el, `${snip(t.text)} under ${label(p)}`);
+          break cover;
+        }
+      }
     }
   }
 
@@ -184,7 +251,12 @@ function lint() {
 }
 
 const browser = await puppeteer.launch({
-  args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+  args: [
+    "--use-fake-ui-for-media-stream",
+    "--use-fake-device-for-media-stream",
+    "--use-angle=swiftshader",
+    "--enable-unsafe-swiftshader",
+  ],
 });
 let errors = 0;
 let warnings = 0;
@@ -210,12 +282,17 @@ try {
   });
 
   await page.goto(url, { waitUntil: "load" });
-  const slides = await page.evaluate(async () => {
+  const { slides, width, height } = await page.evaluate(async () => {
     await customElements.whenDefined("deck-shift");
     const deck = document.querySelector("deck-shift");
     await deck.ready;
-    return deck.script();
+    const cs = getComputedStyle(deck);
+    const [width, height] = ["--deck-width", "--deck-height"].map((p) =>
+      Math.round(parseFloat(cs.getPropertyValue(p))),
+    );
+    return { slides: deck.script(), width, height };
   });
+  await page.setViewport({ width, height });
 
   const shots = [];
   const seen = new Set();
@@ -258,11 +335,13 @@ try {
 
   if (opt.sheet) {
     const cols = Number(opt.cols);
-    await page.setViewport({ width: cols * 480 + (cols + 1) * 16, height: 100 });
+    const tw = width >= height ? 480 : 270;
+    const th = Math.round((tw * height) / width);
+    await page.setViewport({ width: cols * tw + (cols + 1) * 16, height: 100 });
     await page.setContent(`<style>
       body { margin: 0; padding: 16px; background: #222; color: #ddd; font: 18px/1.3 system-ui;
-        display: grid; grid-template-columns: repeat(${cols}, 480px); gap: 16px; }
-      figure { margin: 0 } img { display: block; width: 480px; height: 270px; }
+        display: grid; grid-template-columns: repeat(${cols}, ${tw}px); gap: 16px; }
+      figure { margin: 0 } img { display: block; width: ${tw}px; height: ${th}px; }
       figcaption { padding: 4px 0 }
     </style>${shots.map((s) => `<figure><img src="${s.src}"><figcaption>${s.state}</figcaption></figure>`).join("")}`);
     await writeFile(opt.sheet, await page.screenshot({ fullPage: true }));

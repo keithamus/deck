@@ -46,7 +46,8 @@ Agree, then build.
 - Each step's rest state carries message without motion.
 - Motion sequences, relates or emphasises; else cut. Settles within ~2s.
   Transition picked by how slides relate, pairing consistent.
-- Text >= 20px on 1920x1080 canvas, off edges, < 40 words per step. Text boxes
+- Text >= 20px on the deck canvas (after `zoom`/transforms), off edges and
+  `vertical-video-safe-area` unsafe areas, < 40 words per step. Text boxes
   `min-height`, never fixed `height`.
 - Charts: inline SVG, no chart lib. Title states answer; bars from zero; no dual
   axes; label marks, not legends.
