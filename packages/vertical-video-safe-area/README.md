@@ -26,3 +26,9 @@ Icons are also shown for the comment and favourite buttons, in a placement which
 is quite common - both YouTube Shorts and Tiktok feature buttons in this area,
 meaning you can use this for alignment (or point to them if you're using the
 webcam!)
+
+Each covered area is a `::part(unsafe)`, so it can be restyled.
+[`deck-check`](../deck-check) reports any slide text or painted box that reaches
+into one. With `?replay` in the URL, as
+[`deck-replay`](../deck-recorder) adds, the overlay hides itself (the deck stays
+vertical), so it stays out of the video.

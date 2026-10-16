@@ -12,6 +12,10 @@
   scale: min(100cqw / var(--deck-width), 100cqh / var(--deck-height));
 }
 
+:host([hidden]) {
+  display: none;
+}
+
 div {
   background: #f003;
   color: #fff;
