@@ -12,11 +12,16 @@ import { readFile, rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { parseArgs } from "node:util";
-import { createRunner, PuppeteerRunnerExtension } from "@puppeteer/replay";
+import {
+  createRunner,
+  PuppeteerRunnerExtension,
+  selectorToPElementSelector,
+} from "@puppeteer/replay";
 import puppeteer from "puppeteer";
 
 const CHUNK = 4 << 20;
-const wait = (until) => sleep(Math.max(0, until - performance.now()));
+const epochMs = () => performance.timeOrigin + performance.now();
+const wait = (until) => sleep(Math.max(0, until - epochMs()));
 
 const {
   values: opt,
@@ -74,16 +79,52 @@ async function load(page) {
   );
 }
 
+const measureVideoStart = (page) =>
+  page.evaluate(() => {
+    const video = document.querySelector("webcam-view")?.video;
+    if (!video || video.paused) return null;
+    return (
+      performance.timeOrigin + performance.now() - video.currentTime * 1000
+    );
+  });
+
 // Runs each step at its `t`, counted from when the video starts: just after
 // the first navigation, once the deck is ready.
 class Timed extends PuppeteerRunnerExtension {
   t0 = null;
   recorder = null;
   captured = 0;
+  clickTarget = null;
+
+  async waitUntil(videoMs) {
+    await wait(this.t0 + videoMs);
+    this.t0 = (await measureVideoStart(this.page)) || this.t0;
+    await wait(this.t0 + videoMs);
+  }
 
   async beforeEachStep(step, flow) {
-    if (this.t0 !== null) await wait(this.t0 + step.t);
+    if (step.type === "click") {
+      this.clickTarget = await this.page
+        .locatorRace(
+          step.selectors.map((selector) =>
+            this.page.locator(selectorToPElementSelector(selector)),
+          ),
+        )
+        .setTimeout(this.timeout)
+        .waitHandle();
+    }
+    if (this.t0 !== null) await this.waitUntil(step.t);
     await super.beforeEachStep?.(step, flow);
+  }
+
+  async runStep(step, flow) {
+    if (step.type !== "click") return super.runStep(step, flow);
+    const { x, y } = await this.clickTarget.clickablePoint({
+      x: step.offsetX,
+      y: step.offsetY,
+    });
+    await this.page.mouse.click(x, y);
+    await this.clickTarget.dispose();
   }
 
   async afterEachStep(step, flow) {
@@ -93,18 +134,22 @@ class Timed extends PuppeteerRunnerExtension {
     await page.evaluate(() => document.querySelector("deck-shift")?.ready);
     await load(page);
     this.recorder = await page.screencast({ path: screen });
-    this.captured = performance.now();
+    this.captured = epochMs();
     await page.evaluate(() =>
       document.querySelector("webcam-view")?.video.play(),
     );
-    this.t0 = performance.now();
+    this.t0 = epochMs();
   }
 }
 
 const browser = await puppeteer.launch({
   headless: !opt.headed,
   acceptInsecureCerts: true,
-  args: ["--autoplay-policy=no-user-gesture-required"],
+  args: [
+    "--autoplay-policy=no-user-gesture-required",
+    "--enable-gpu",
+    "--enable-unsafe-swiftshader",
+  ],
 });
 try {
   const page = await browser.newPage();
@@ -113,7 +158,7 @@ try {
   await (await createRunner(flow, timed)).run();
   // minimal: real-time capture, so frames can lag a slow machine; seek every
   // animation per frame (as ../demo's renderer does) if that shows.
-  await wait(timed.t0 + flow.duration);
+  await timed.waitUntil(flow.duration);
   await timed.recorder.stop();
   const offset = (timed.t0 - timed.captured) / 1000;
   const ffmpeg = spawn(

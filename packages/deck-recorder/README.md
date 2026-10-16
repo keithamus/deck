@@ -41,11 +41,14 @@ npx deck-replay recording-<time>.json [--out video.mp4] [--headed]
 ```
 
 That replays the recording in a browser, while also screen-recording the page in
-Chrome as the steps play, laying the recording's sound under it. The video is
-the slide and nothing else: 1920x1080 by default, 1080x1920 with a
-[`vertical-video-safe-area`]. The deck opens with `?replay` added to its URL, so
-anything that shouldn't be in the video, such as the safe area's overlay, can
-hide itself.
+Chrome as the steps play, laying the recording's sound under it. Each step runs
+when the replayed webcam video reaches its `t`, so slides change in time with
+the voice. Chrome renders on the GPU where it can (on Linux, that needs a
+desktop session); otherwise it falls back to software rendering, which works,
+but steps land up to a few frames late. The video is the slide and nothing else:
+1920x1080 by default, 1080x1920 with a [`vertical-video-safe-area`]. The deck
+opens with `?replay` added to its URL, so anything that shouldn't be in the
+video, such as the safe area's overlay, can hide itself.
 
 ## Styling & API
 
