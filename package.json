@@ -1,6 +1,10 @@
 {
   "name": "deck-shift-workspace",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keithamus/deck.git"
+  },
   "type": "module",
   "workspaces": [
     "packages/*"

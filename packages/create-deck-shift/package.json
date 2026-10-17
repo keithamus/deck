@@ -8,6 +8,10 @@
     "scaffold",
     "create"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keithamus/deck.git"
+  },
   "author": "Keith Cirkel",
   "type": "module",
   "bin": {

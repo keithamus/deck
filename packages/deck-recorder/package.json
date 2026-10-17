@@ -11,6 +11,10 @@
     "puppeteer",
     "replay"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keithamus/deck.git"
+  },
   "author": "Keith Cirkel",
   "type": "module",
   "exports": "./deck-recorder.min.js",

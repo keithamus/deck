@@ -8,6 +8,10 @@
     "slides",
     "presentation"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keithamus/deck.git"
+  },
   "author": "Keith Cirkel",
   "type": "module",
   "exports": "./vertical-video-safe-area.min.js",
