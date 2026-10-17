@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cp, mkdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -109,6 +109,9 @@ ${scripts}
 const files = new Map([["index.html", html]]);
 
 if (bundler) {
+  const { version } = JSON.parse(
+    await readFile(new URL("package.json", import.meta.url), "utf8"),
+  );
   const pkg = {
     name: packageName,
     private: true,
@@ -118,9 +121,11 @@ if (bundler) {
       serve: "esbuild main.js --bundle --format=esm --outdir=dist --servedir=.",
       check: "npm run build && deck-check index.html",
     },
-    dependencies: Object.fromEntries(COMPONENTS.map((pkg) => [pkg, "^0.1.0"])),
+    dependencies: Object.fromEntries(
+      COMPONENTS.map((pkg) => [pkg, `^${version}`]),
+    ),
     devDependencies: {
-      "deck-check": "^0.1.0",
+      "deck-check": `^${version}`,
       esbuild: "^0.28.2",
     },
   };
