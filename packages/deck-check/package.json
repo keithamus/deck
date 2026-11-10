@@ -1,6 +1,7 @@
 {
   "name": "deck-check",
   "version": "0.1.2",
+  "license": "MIT",
   "description": "Lints every slide and step of a <deck-shift> deck in Chrome, and draws a contact sheet.",
   "keywords": [
     "slides",

@@ -1,6 +1,7 @@
 {
   "name": "deck-shift",
   "version": "0.1.2",
+  "license": "MIT",
   "description": "A slide deck custom element: HTML sections, steps, View Transitions and speaker notes.",
   "keywords": [
     "web-components",

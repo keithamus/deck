@@ -1,6 +1,7 @@
 {
   "name": "vertical-video-safe-area",
   "version": "0.1.2",
+  "license": "MIT",
   "description": "On-screen overlay assisting with short form vertical video recording.",
   "keywords": [
     "web-components",

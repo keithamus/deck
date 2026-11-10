@@ -1,6 +1,7 @@
 {
   "name": "deck-recorder",
   "version": "0.1.2",
+  "license": "MIT",
   "description": "Records a <deck-shift> talk as a webcam video plus a timed Puppeteer Replay flow, and replays them into one video.",
   "keywords": [
     "web-components",

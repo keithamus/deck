@@ -1,6 +1,7 @@
 {
   "name": "create-deck-shift",
   "version": "0.1.2",
+  "license": "MIT",
   "description": "Starts a <deck-shift> slide deck: npm create deck-shift.",
   "keywords": [
     "slides",

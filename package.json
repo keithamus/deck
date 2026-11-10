@@ -1,5 +1,6 @@
 {
   "name": "deck-shift-workspace",
+  "license": "MIT",
   "private": true,
   "repository": {
     "type": "git",

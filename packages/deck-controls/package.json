@@ -1,6 +1,7 @@
 {
   "name": "deck-controls",
   "version": "0.1.2",
+  "license": "MIT",
   "description": "On-screen playback controls for a <deck-shift> slide deck.",
   "keywords": [
     "web-components",
