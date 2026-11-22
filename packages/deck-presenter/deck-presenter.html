@@ -6,12 +6,10 @@
   <span part="clock"></span>
 </header>
 <main part="main">
-  <section>
+  <section part="slides">
     <div part="frame current-slide">
       <iframe tabindex="-1"></iframe>
     </div>
-  </section>
-  <aside part="sidebar">
     <div>
       <label part="label">Next</label>
       <div class="frame next" part="frame next-slide">
@@ -19,8 +17,8 @@
         <div class="end" part="end">End of deck</div>
       </div>
     </div>
-    <div part="notes"></div>
-  </aside>
+  </section>
+  <div part="notes"></div>
 </main>
 <dialog closedby="any" part="help" aria-label="Keyboard shortcuts">
   <h1>Presenter view</h1>

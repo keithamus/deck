@@ -54,6 +54,8 @@ export class DeckPresenter extends HTMLElement {
     const clock = $("clock");
     const notes = $("notes");
     const help = $("help");
+    const ahead = new w.Highlight();
+    w.CSS.highlights.set("deck-ahead", ahead);
 
     $("prev-button").onclick = () => deck.prev();
     $("next-button").onclick = () => deck.next();
@@ -95,6 +97,7 @@ export class DeckPresenter extends HTMLElement {
     const post = (frame, msg) =>
       frame.contentWindow?.postMessage({ deck: "goto", ...msg }, "*");
     const show = () => {
+      ahead.clear();
       const { slide, step, slides } = deck;
       const s = slides[slide],
         title = deck.script()[slide].title;
@@ -114,17 +117,20 @@ export class DeckPresenter extends HTMLElement {
         return void (notes.innerHTML =
           '<em class="none">No notes for this slide.</em>');
       notes.replaceChildren(...doc.importNode(aside, true).childNodes);
-      notes
-        .querySelectorAll("mark")
-        .forEach((m, i) =>
-          m.setAttribute(
-            "part",
-            i < step ? "cue cue-hit" : i === step ? "cue cue-next" : "cue",
-          ),
-        );
-      notes
-        .querySelector('mark[part~="cue-next"]')
-        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      const marks = notes.querySelectorAll("mark");
+      marks.forEach((m, i) =>
+        m.setAttribute(
+          "part",
+          i < step ? "cue cue-hit" : i === step ? "cue cue-next" : "cue",
+        ),
+      );
+      const next = marks[step];
+      if (!next) return;
+      const rest = doc.createRange();
+      rest.setStartAfter(next);
+      rest.setEnd(notes, notes.childNodes.length);
+      ahead.add(rest);
+      next.scrollIntoView({ block: "center", behavior: "smooth" });
     };
     deck.addEventListener("deckchange", show, { signal });
     for (const f of [cur, nxt]) f.addEventListener("load", show, { signal });

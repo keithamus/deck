@@ -58,17 +58,19 @@ button {
 
 main {
   display: grid;
-  grid-template-columns: 1.55fr 1fr;
-  gap: 22px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 32px;
   padding: 22px;
   min-height: 0;
 }
 
-aside {
+section {
   display: grid;
-  grid-template-rows: auto 1fr;
+  align-content: start;
   gap: 18px;
   min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
 }
 
 label {
@@ -113,13 +115,15 @@ label {
 
 [part~="notes"] {
   overflow: auto;
-  font-size: 24px;
-  line-height: 1.45;
-  color: #f2f2f2;
+  font-size: clamp(36px, 3.4vw, 72px);
+  font-weight: 500;
+  line-height: 1.4;
+  color: #fff;
   padding-right: 8px;
+  overflow-wrap: break-word;
 
   p {
-    margin: 0 0 0.7em;
+    margin: 0 0 0.6em;
   }
 
   em.none {
@@ -129,7 +133,7 @@ label {
   mark {
     background: none;
     color: inherit;
-    border-bottom: 2px solid #555;
+    border-bottom: 0.06em solid #555;
   }
 
   mark[part~="cue-hit"] {
@@ -140,9 +144,16 @@ label {
   mark[part~="cue-next"] {
     background: var(--deck-ui-accent, #ffd23f);
     color: #000;
-    border-radius: 3px;
+    border-radius: 0.1em;
     border-color: transparent;
+    padding: 0 0.08em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
+}
+
+::highlight(deck-ahead) {
+  color: var(--deck-presenter-ahead, #5c5c5c);
 }
 
 dialog {
